@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Retour de la banque · Mon Patrimoine</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#1c2433;--mut:#5b6679;--card:#fff;--line:#e1e5ee;--ok:#1f8f5f;--ko:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1420;--fg:#e8ecf4;--mut:#9aa6bb;--card:#171e2e;--line:#2a3347;--ok:#4cc38a;--ko:#ff8a8a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px 16px}
+main{max-width:720px;margin:0 auto}
+h1{font-size:1.5rem;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:0 0 24px}
+.v{display:block;width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:14px/1.4 ui-monospace,Consolas,monospace;word-break:break-all;margin:6px 0 14px}
+button{padding:12px 18px;border:0;border-radius:10px;background:#f6b236;color:#1c2433;font-weight:700;font-size:1rem;cursor:pointer}
+.mut{color:var(--mut);font-size:.9rem}.ok{color:var(--ok)}.ko{color:var(--ko)}
+</style>
+</head>
+<body>
+<main>
+<h1>Retour de la banque</h1>
+<section class="card" id="r"></section>
+</main>
+<script>
+(function(){
+var p=new URLSearchParams(location.search),r=document.getElementById("r");
+var code=p.get("code"),err=p.get("error"),desc=p.get("error_description"),st=p.get("state");
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+if(code){
+  r.innerHTML='<p class="ok"><b>Autorisation reçue.</b></p><p>Copie ce code et colle-le dans le programme sur ton PC.</p><label class="mut" for="c">Code</label><textarea class="v" id="c" rows="3" readonly>'+esc(code)+'</textarea>'+(st?'<label class="mut" for="s">État</label><textarea class="v" id="s" rows="1" readonly>'+esc(st)+'</textarea>':'')+'<button type="button" id="b">Copier le code</button><p class="mut">Ce code ne sert qu\'une fois et seulement avec ta clé privée. Ne le partage pas.</p>';
+  document.getElementById("b").addEventListener("click",function(){var c=document.getElementById("c");c.select();try{navigator.clipboard.writeText(c.value)}catch(x){document.execCommand("copy")}this.textContent="Copié"});
+}else if(err){
+  r.innerHTML='<p class="ko"><b>La banque a refusé ou interrompu la demande.</b></p><p>'+esc(err)+(desc?' : '+esc(desc):'')+'</p>';
+}else{
+  r.innerHTML='<p>Cette page reçoit le retour de ta banque. Aucune autorisation en cours.</p>';
+}
+try{history.replaceState(null,"",location.pathname)}catch(x){}
+})();
+</script>
+</body>
+</html>
