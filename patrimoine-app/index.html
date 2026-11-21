@@ -78,10 +78,24 @@ async function open(){
   msg("Ouverture…");
   await pull();
   var html=await getApp();
+  window.mpFn=async function(n){await ensure();var r=await fetch(U+"/functions/v1/"+n,{method:"POST",headers:H({"Content-Type":"application/json"}),body:"{}"});if(!r.ok){var e=new Error("fn");e.code=r.status;throw e}return r.json()};
   try{Object.defineProperty(window,"localStorage",{value:W,configurable:true})}catch(x){}
   document.open();document.write(html);document.close();
   window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush()});
   window.addEventListener("pagehide",flush);
+  try{SS.setItem("mp_hb",String(Date.now()))}catch(x){}
+  beat();setInterval(beat,60000);
+  window.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")beat()});
+}
+async function beat(){
+  try{
+    await ensure();
+    var r=await fetch(U+"/rest/v1/etat?select=value&key=eq.banque",{headers:H()});
+    if(!r.ok)throw new Error("hb "+r.status);
+    var rows=await r.json();
+    SS.setItem("mp_hb",String(Date.now()));
+    if(rows[0]&&typeof rows[0].value==="string"&&RL.getItem(NS+"banque")!==rows[0].value)RL.setItem(NS+"banque",rows[0].value);
+  }catch(x){}
 }
 function explain(x){
   if(x&&x.message==="auth"){return x.code===400||x.code===401||x.code===422?"E-mail ou mot de passe incorrect.":"Connexion refusée ("+x.code+")."}
